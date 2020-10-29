@@ -46,8 +46,7 @@ namespace WebApi.Controllers
                                 NullValueHandling = NullValueHandling.Ignore
                             }) + "}";
 
-            return Ok(json);
-
+            return Content(json, "application/json");
         }
     }
 }
