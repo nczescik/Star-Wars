@@ -23,6 +23,7 @@ namespace WebApi
             services
                 .AddDependencyInjection()
                 .AddDbContext(Configuration)
+                .AddSwagger()
                 .AddControllers();
         }
 
@@ -31,21 +32,14 @@ namespace WebApi
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage()
+                    .UseSwaggerExt();
             }
 
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-            });
+            app.UseHttpsRedirection()
+                .UseRouting()
+                .UseAuthorization()
+                .UseEndpointsExt();
 
             starWarsDbContext.Database.EnsureCreated();
         }

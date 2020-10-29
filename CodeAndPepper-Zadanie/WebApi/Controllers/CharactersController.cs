@@ -44,7 +44,7 @@ namespace WebApi.Controllers
                             new JsonSerializerSettings
                             {
                                 NullValueHandling = NullValueHandling.Ignore
-                            })+"}";
+                            }) + "}";
 
             return Ok(json);
 
