@@ -22,17 +22,17 @@ namespace WebApi.DAL
         {
             //Created many to many relation for Character-Friend
             builder.Entity<Friendship>()
-                .HasKey(e => new { e.CharacterId, e.FriendId });
-
-            builder.Entity<Friendship>()
-                .HasOne(f => f.Character)
-                .WithMany(mu => mu.MainCharacterFriends)
-                .HasForeignKey(f => f.CharacterId).OnDelete(DeleteBehavior.Restrict);
+                .HasKey(e => new { e.FriendId, e.CharacterId });
 
             builder.Entity<Friendship>()
                 .HasOne(f => f.Friend)
-                .WithMany(mu => mu.Friends)
-                .HasForeignKey(f => f.FriendId);
+                .WithMany()
+                .HasForeignKey(f => f.FriendId).OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Friendship>()
+                .HasOne(f => f.Character)
+                .WithMany(mf => mf.Friends)
+                .HasForeignKey(f => f.CharacterId);
 
 
             //Created many to many relation for Character-Episode
@@ -41,12 +41,12 @@ namespace WebApi.DAL
 
             builder.Entity<CharacterEpisode>()
                 .HasOne(ce => ce.Character)
-                .WithMany(c => c.CharacterEpisode)
+                .WithMany(c => c.Episodes)
                 .HasForeignKey(ce => ce.CharacterId);
 
             builder.Entity<CharacterEpisode>()
                 .HasOne(ce => ce.Episode)
-                .WithMany(e => e.CharacterEpisode)
+                .WithMany(e => e.Characters)
                 .HasForeignKey(ce => ce.EpisodeId);
 
 
@@ -67,6 +67,10 @@ namespace WebApi.DAL
                 .Entity<Planet>()
                 .HasData(new Planet { Id = 1, Name = "Alderaan" });
 
+
+            //Mapping Discriminator
+            builder.Entity<Character>()
+                .HasDiscriminator(c => c.Discriminator);
 
             //Adding Humans to database
             builder
