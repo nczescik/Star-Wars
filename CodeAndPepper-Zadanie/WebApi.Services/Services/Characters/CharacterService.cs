@@ -31,31 +31,35 @@ namespace WebApi.Services.Services.Characters
                 .Include(c => c.Planet)
                 .Include(c => c.Friends)
                 .ThenInclude(f => f.Friend)
-                .Where(c => c.Id == characterId)
+                .Where(c => c.Id == characterId && !c.IsDeleted)
                 .FirstOrDefault();
 
-            var dto = new CharacterDto
+            CharacterDto dto = null;
+            if (character != null)
             {
-                CharacterId = character.Id,
-                Name = character.GetName(),
-                Episodes = character.Episodes
+                dto = new CharacterDto
+                {
+                    CharacterId = character.Id,
+                    Name = character.GetName(),
+                    Episodes = character.Episodes
                         .Select(e => new EpisodeDto
                         {
                             EpisodeId = e.EpisodeId,
                             Name = e.Episode.EpisodeName
                         }).ToList(),
-                Planet = character.Planet != null ? new PlanetDto
-                {
-                    PlanetId = character.Planet.Id,
-                    Name = character.Planet.Name
-                } : null,
-                Friends = character.Friends
+                    Planet = character.Planet != null ? new PlanetDto
+                    {
+                        PlanetId = character.Planet.Id,
+                        Name = character.Planet.Name
+                    } : null,
+                    Friends = character.Friends
                         .Select(f => new FriendDto
                         {
                             FriendId = f.FriendId,
                             Name = f.Friend.GetName()
                         }).ToList()
-            };
+                };
+            }
 
             return dto;
         }
@@ -146,32 +150,35 @@ namespace WebApi.Services.Services.Characters
                 .Include(c => c.Planet)
                 .Include(c => c.Friends)
                 .ThenInclude(f => f.Friend)
-                .Where(c => !c.IsDeleted)
+                .Where(c => c.Id == characterId && !c.IsDeleted)
                 .FirstOrDefaultAsync();
-
-            var characterDto = new CharacterDto
+            
+            CharacterDto characterDto = null;
+            if (character != null)
             {
-                CharacterId = character.Id,
-                Name = character.GetName(),
-                Episodes = character.Episodes
+                characterDto = new CharacterDto
+                {
+                    CharacterId = character.Id,
+                    Name = character.GetName(),
+                    Episodes = character.Episodes
                     .Select(e => new EpisodeDto
                     {
                         EpisodeId = e.EpisodeId,
                         Name = e.Episode.EpisodeName
                     }).ToList(),
-                Planet = character.Planet != null ? new PlanetDto
-                {
-                    PlanetId = character.Planet.Id,
-                    Name = character.Planet.Name
-                } : null,
-                Friends = character.Friends
+                    Planet = character.Planet != null ? new PlanetDto
+                    {
+                        PlanetId = character.Planet.Id,
+                        Name = character.Planet.Name
+                    } : null,
+                    Friends = character.Friends
                     .Select(f => new FriendDto
                     {
                         FriendId = f.FriendId,
                         Name = f.Friend.GetName()
                     }).ToList()
-            };
-
+                };
+            }
             return characterDto;
         }
 

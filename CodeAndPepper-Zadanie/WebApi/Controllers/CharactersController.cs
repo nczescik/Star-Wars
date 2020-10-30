@@ -25,6 +25,11 @@ namespace WebApi.Controllers
         {
             var character = _characterService.GetCharacter(userId);
 
+            if (character == null)
+            {
+                return Ok("Character doesn't exist");
+            }
+
             var model = new CharacterModel
             {
                 Name = character.Name,
@@ -41,6 +46,7 @@ namespace WebApi.Controllers
                             });
 
             return Content(json, "application/json");
+
         }
 
         [HttpGet("GetCharacters")]
@@ -93,6 +99,11 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetCharacterAsync(long userId)
         {
             var character = await _characterService.GetCharacterAsync(userId);
+            
+            if (character == null)
+            {
+                return Ok("Character doesn't exist");
+            }
 
             var model = new CharacterModel
             {
