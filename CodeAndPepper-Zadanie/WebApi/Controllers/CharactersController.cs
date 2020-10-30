@@ -2,7 +2,9 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Services.Services.Characters;
 
@@ -27,7 +29,7 @@ namespace WebApi.Controllers
 
             if (character == null)
             {
-                return Ok("Character doesn't exist");
+                return Ok(new { Message = "Character doesn't exist" });
             }
 
             var model = new CharacterModel
@@ -38,12 +40,7 @@ namespace WebApi.Controllers
                 Friends = character.Friends.Select(f => f.Name).ToList()
             };
 
-            var json = JsonConvert.SerializeObject(model,
-                            Formatting.None,
-                            new JsonSerializerSettings
-                            {
-                                NullValueHandling = NullValueHandling.Ignore
-                            });
+            var json = JsonHelper<CharacterModel>.JsonConverter(model, "character");
 
             return Content(json, "application/json");
 
@@ -68,24 +65,19 @@ namespace WebApi.Controllers
                 result.Add(model);
             }
 
-            var json = "{\"characters\":" + JsonConvert.SerializeObject(result,
-                            Formatting.None,
-                            new JsonSerializerSettings
-                            {
-                                NullValueHandling = NullValueHandling.Ignore
-                            }) + "}";
+            var json = JsonHelper<List<CharacterModel>>.JsonConverter(result, "characters");
 
             return Content(json, "application/json");
         }
 
-        [HttpPost("Delete")]
+        [HttpDelete("Delete")]
         public IActionResult DeleteCharacter(long characterId)
         {
             _characterService.DeleteCharacter(characterId);
             return Ok();
         }
 
-        [HttpPost("DeleteCascade")]
+        [HttpDelete("DeleteCascade")]
         public IActionResult DeleteCharacterCascade(long characterId)
         {
             _characterService.DeleteCharacterCascade(characterId);
@@ -99,10 +91,10 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetCharacterAsync(long userId)
         {
             var character = await _characterService.GetCharacterAsync(userId);
-            
+
             if (character == null)
             {
-                return Ok("Character doesn't exist");
+                return Ok(new { Message = "Character doesn't exist" });
             }
 
             var model = new CharacterModel
@@ -113,12 +105,7 @@ namespace WebApi.Controllers
                 Friends = character.Friends.Select(f => f.Name).ToList()
             };
 
-            var json = JsonConvert.SerializeObject(model,
-                            Formatting.None,
-                            new JsonSerializerSettings
-                            {
-                                NullValueHandling = NullValueHandling.Ignore
-                            });
+            var json = JsonHelper<CharacterModel>.JsonConverter(model, "character");
 
             return Content(json, "application/json");
         }
@@ -142,24 +129,19 @@ namespace WebApi.Controllers
                 result.Add(model);
             }
 
-            var json = "{\"characters\":" + JsonConvert.SerializeObject(result,
-                            Formatting.None,
-                            new JsonSerializerSettings
-                            {
-                                NullValueHandling = NullValueHandling.Ignore
-                            }) + "}";
+            var json = JsonHelper<List<CharacterModel>>.JsonConverter(result, "characters");
 
             return Content(json, "application/json");
         }
 
-        [HttpPost("DeleteAsync")]
+        [HttpDelete("DeleteAsync")]
         public async Task<IActionResult> DeleteCharacterAsync(long characterId)
         {
             await _characterService.DeleteCharacterAsync(characterId);
             return Ok();
         }
 
-        [HttpPost("DeleteCascadeAsync")]
+        [HttpDelete("DeleteCascadeAsync")]
         public async Task<IActionResult> DeleteCharacterCascadeAsync(long characterId)
         {
             await _characterService.DeleteCharacterCascadeAsync(characterId);

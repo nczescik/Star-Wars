@@ -5,13 +5,18 @@ namespace WebApi.DAL.Entities
 {
     public abstract class Character : Entity
     {
+        public Character()
+        {
+            Episodes = new List<CharacterEpisode>();
+            Friends = new List<Friendship>();
+        }
         [ForeignKey("Planet")]
         public long? PlanetId { get; set; }
         public virtual Planet Planet { get; set; }
 
         public string Discriminator { get; set; }
 
-        public List<CharacterEpisode> Episodes { get; set; }
+        public IList<CharacterEpisode> Episodes { get; set; }
         public IList<Friendship> Friends { get; set; }
     }
 

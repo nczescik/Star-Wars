@@ -133,9 +133,9 @@ namespace WebApi.Services.Services.Characters
                     _dbContext.Remove(child);
                     _dbContext.SaveChanges();
                 }
-            }
 
-            _repository.Delete(character);
+                _repository.Delete(character);
+            }
         }
 
 
@@ -251,9 +251,9 @@ namespace WebApi.Services.Services.Characters
                     _dbContext.Remove(child);
                     await _dbContext.SaveChangesAsync();
                 }
-            }
 
-            await _repository.DeleteAsync(character);
+                await _repository.DeleteAsync(character);
+            }
         }
 
         #endregion
