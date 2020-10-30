@@ -27,12 +27,14 @@ namespace WebApi.DAL
             builder.Entity<Friendship>()
                 .HasOne(f => f.Friend)
                 .WithMany()
-                .HasForeignKey(f => f.FriendId).OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(f => f.FriendId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<Friendship>()
                 .HasOne(f => f.Character)
                 .WithMany(mf => mf.Friends)
-                .HasForeignKey(f => f.CharacterId);
+                .HasForeignKey(f => f.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             //Created many to many relation for Character-Episode
@@ -42,7 +44,8 @@ namespace WebApi.DAL
             builder.Entity<CharacterEpisode>()
                 .HasOne(ce => ce.Character)
                 .WithMany(c => c.Episodes)
-                .HasForeignKey(ce => ce.CharacterId);
+                .HasForeignKey(ce => ce.CharacterId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<CharacterEpisode>()
                 .HasOne(ce => ce.Episode)
