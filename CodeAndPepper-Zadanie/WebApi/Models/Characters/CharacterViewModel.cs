@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace WebApi.Models
+namespace WebApi.Models.Characters
 {
-    public class CharacterModel
+    public class CharacterViewModel
     {
         public string Name { get; set; }
         public string Planet { get; set; }

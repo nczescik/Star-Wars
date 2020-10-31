@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WebApi.Models
+namespace WebApi.Models.Episodes
 {
     public class EpisodeModel
     {

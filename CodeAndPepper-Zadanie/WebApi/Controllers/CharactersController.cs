@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using WebApi.Helpers;
-using WebApi.Models;
+using WebApi.Models.Characters;
+using WebApi.Services.Dto;
 using WebApi.Services.Services.Characters;
+using WebApi.Services.Services.Episodes;
 
 namespace WebApi.Controllers
 {
@@ -15,11 +15,14 @@ namespace WebApi.Controllers
     public class CharactersController : ControllerBase
     {
         private readonly ICharacterService _characterService;
+        private readonly IEpisodeService _episodeService;
         public CharactersController(
-            ICharacterService characterService
+            ICharacterService characterService,
+            IEpisodeService episodeService
             )
         {
             _characterService = characterService;
+            _episodeService = episodeService;
         }
 
         [HttpGet("GetCharacter/{userId}")]
@@ -32,7 +35,7 @@ namespace WebApi.Controllers
                 return Ok(new { Message = "Character doesn't exist" });
             }
 
-            var model = new CharacterModel
+            var model = new CharacterViewModel
             {
                 Name = character.Name,
                 Episodes = character.Episodes.Select(e => e.Name).ToList(),
@@ -40,7 +43,7 @@ namespace WebApi.Controllers
                 Friends = character.Friends.Select(f => f.Name).ToList()
             };
 
-            var json = JsonHelper<CharacterModel>.JsonConverter(model, "character");
+            var json = JsonHelper<CharacterViewModel>.JsonConverter(model, "character");
 
             return Content(json, "application/json");
 
@@ -49,12 +52,12 @@ namespace WebApi.Controllers
         [HttpGet("GetCharacters")]
         public IActionResult GetCharacters()
         {
-            var result = new List<CharacterModel>();
+            var result = new List<CharacterViewModel>();
             var characters = _characterService.GetCharactersList();
 
             foreach (var character in characters)
             {
-                var model = new CharacterModel
+                var model = new CharacterViewModel
                 {
                     Name = character.Name,
                     Episodes = character.Episodes.Select(e => e.Name).ToList(),
@@ -65,7 +68,7 @@ namespace WebApi.Controllers
                 result.Add(model);
             }
 
-            var json = JsonHelper<List<CharacterModel>>.JsonConverter(result, "characters");
+            var json = JsonHelper<List<CharacterViewModel>>.JsonConverter(result, "characters");
 
             return Content(json, "application/json");
         }
@@ -97,7 +100,7 @@ namespace WebApi.Controllers
                 return Ok(new { Message = "Character doesn't exist" });
             }
 
-            var model = new CharacterModel
+            var model = new CharacterViewModel
             {
                 Name = character.Name,
                 Episodes = character.Episodes.Select(e => e.Name).ToList(),
@@ -105,7 +108,7 @@ namespace WebApi.Controllers
                 Friends = character.Friends.Select(f => f.Name).ToList()
             };
 
-            var json = JsonHelper<CharacterModel>.JsonConverter(model, "character");
+            var json = JsonHelper<CharacterViewModel>.JsonConverter(model, "character");
 
             return Content(json, "application/json");
         }
@@ -113,12 +116,12 @@ namespace WebApi.Controllers
         [HttpGet("GetCharactersAsync")]
         public async Task<IActionResult> GetCharactersAsync()
         {
-            var result = new List<CharacterModel>();
+            var result = new List<CharacterViewModel>();
             var characters = await _characterService.GetCharactersListAsync();
 
             foreach (var character in characters)
             {
-                var model = new CharacterModel
+                var model = new CharacterViewModel
                 {
                     Name = character.Name,
                     Episodes = character.Episodes.Select(e => e.Name).ToList(),
@@ -129,7 +132,7 @@ namespace WebApi.Controllers
                 result.Add(model);
             }
 
-            var json = JsonHelper<List<CharacterModel>>.JsonConverter(result, "characters");
+            var json = JsonHelper<List<CharacterViewModel>>.JsonConverter(result, "characters");
 
             return Content(json, "application/json");
         }

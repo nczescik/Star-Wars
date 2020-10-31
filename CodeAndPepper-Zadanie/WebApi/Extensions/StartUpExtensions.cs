@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using WebApi.DAL;
 using WebApi.Services.Services.Characters;
 using WebApi.Services.Services.Episodes;
+using WebApi.Services.Services.Humans;
 using WebAPI.DAL.Interfaces;
 using WebAPI.DAL.Repositories;
 
@@ -19,6 +20,7 @@ namespace WebApi.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ICharacterService, CharacterService>();
             services.AddScoped<IEpisodeService, EpisodeService>();
+            services.AddScoped<IHumanService, HumanService>();
             return services;
         }
         public static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)

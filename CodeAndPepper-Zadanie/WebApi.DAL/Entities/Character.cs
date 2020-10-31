@@ -16,8 +16,8 @@ namespace WebApi.DAL.Entities
 
         public string Discriminator { get; set; }
 
-        public IList<CharacterEpisode> Episodes { get; set; }
-        public IList<Friendship> Friends { get; set; }
+        public List<CharacterEpisode> Episodes { get; set; }
+        public List<Friendship> Friends { get; set; }
     }
 
     public class Friendship
@@ -35,5 +35,11 @@ namespace WebApi.DAL.Entities
         public Episode Episode { get; set; }
         public long CharacterId { get; set; }
         public Character Character { get; set; }
+    }
+
+    public enum CharacterType
+    {
+        Human = 1,
+        Machine = 2
     }
 }

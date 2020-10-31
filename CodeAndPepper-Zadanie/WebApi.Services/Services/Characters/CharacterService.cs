@@ -53,9 +53,9 @@ namespace WebApi.Services.Services.Characters
                         Name = character.Planet.Name
                     } : null,
                     Friends = character.Friends
-                        .Select(f => new FriendDto
+                        .Select(f => new CharacterDto
                         {
-                            FriendId = f.FriendId,
+                            CharacterId = f.FriendId,
                             Name = f.Friend.GetName()
                         }).ToList()
                 };
@@ -95,9 +95,9 @@ namespace WebApi.Services.Services.Characters
                         Name = character.Planet.Name
                     } : null,
                     Friends = character.Friends
-                        .Select(f => new FriendDto
+                        .Select(f => new CharacterDto
                         {
-                            FriendId = f.FriendId,
+                            CharacterId = f.FriendId,
                             Name = f.Friend.GetName()
                         }).ToList()
                 };
@@ -172,9 +172,9 @@ namespace WebApi.Services.Services.Characters
                         Name = character.Planet.Name
                     } : null,
                     Friends = character.Friends
-                    .Select(f => new FriendDto
+                    .Select(f => new CharacterDto
                     {
-                        FriendId = f.FriendId,
+                        CharacterId = f.FriendId,
                         Name = f.Friend.GetName()
                     }).ToList()
                 };
@@ -213,9 +213,9 @@ namespace WebApi.Services.Services.Characters
                         Name = character.Planet.Name
                     } : null,
                     Friends = character.Friends
-                        .Select(f => new FriendDto
+                        .Select(f => new CharacterDto
                         {
-                            FriendId = f.FriendId,
+                            CharacterId = f.FriendId,
                             Name = f.Friend.GetName()
                         }).ToList()
                 };

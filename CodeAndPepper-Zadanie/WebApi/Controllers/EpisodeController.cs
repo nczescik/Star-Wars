@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using WebApi.Helpers;
-using WebApi.Models;
+using WebApi.Models.Episodes;
 using WebApi.Services.Dto;
 using WebApi.Services.Services.Episodes;
 
@@ -37,6 +36,11 @@ namespace WebApi.Controllers
         public IActionResult GetEpisode(long episodeId)
         {
             var episode = _episodeService.GetEpisode(episodeId);
+            if (episode == null)
+            {
+                return Ok(new { Message = "Episode doesn't exists" });
+            }
+
             var episodeModel = new EpisodeModel
             {
                 Name = episode.Name,
@@ -71,25 +75,26 @@ namespace WebApi.Controllers
         [HttpPut("Update")]
         public IActionResult UpdateEpisode(EpisodeModel episodeModel)
         {
-            if (episodeModel.EpisodeId.HasValue && episodeModel.EpisodeId.Value != 0)
+            if (!episodeModel.EpisodeId.HasValue || episodeModel.EpisodeId.Value == 0)
             {
-                var episodeDto = new EpisodeDto
-                {
-                    EpisodeId = episodeModel.EpisodeId.Value,
-                    Name = episodeModel.Name,
-                    CharacterIds = episodeModel.CharacterIds
-                };
-
-                var id = _episodeService.UpdateEpisode(episodeDto);
-                if (!id.HasValue)
-                {
-                    return Ok(new { Message = "Episode doesn't exists" });
-                }
-
-                return Ok(new { EpisodeId = id });
+                return Ok(new { Message = "Incorrect value of episode Id" });
             }
 
-            return Ok(new { Message = "Incorrect value of episode Id" });
+            var episodeDto = new EpisodeDto
+            {
+                EpisodeId = episodeModel.EpisodeId.Value,
+                Name = episodeModel.Name,
+                CharacterIds = episodeModel.CharacterIds
+            };
+
+            var id = _episodeService.UpdateEpisode(episodeDto);
+            if (!id.HasValue)
+            {
+                return Ok(new { Message = "Episode doesn't exists" });
+            }
+
+            return Ok(new { EpisodeId = id });
+
         }
 
         [HttpDelete("Delete")]
