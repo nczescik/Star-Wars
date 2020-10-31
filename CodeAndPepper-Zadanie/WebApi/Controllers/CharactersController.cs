@@ -14,14 +14,11 @@ namespace WebApi.Controllers
     public class CharactersController : ControllerBase
     {
         private readonly ICharacterService _characterService;
-        private readonly IEpisodeService _episodeService;
         public CharactersController(
-            ICharacterService characterService,
-            IEpisodeService episodeService
+            ICharacterService characterService
             )
         {
             _characterService = characterService;
-            _episodeService = episodeService;
         }
 
         [HttpGet("GetCharacter/{userId}")]

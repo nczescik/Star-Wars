@@ -5,6 +5,7 @@ using System.Linq;
 using WebApi.DAL.Entities;
 using WebApi.DAL.Extensions;
 using WebApi.Services.Dto;
+using WebApi.Services.Services.Characters;
 using WebAPI.DAL.Interfaces;
 
 namespace WebApi.Services.Services.Humans
@@ -12,17 +13,14 @@ namespace WebApi.Services.Services.Humans
     public class HumanService : IHumanService
     {
         private readonly IRepository<Human> _humanRepository;
-        private readonly IRepository<Character> _characterRepository;
-        private readonly IRepository<Episode> _episodeRepository;
+        private readonly ICharacterService _characterService;
         public HumanService(
             IRepository<Human> humanRepository,
-            IRepository<Character> characterRepository,
-            IRepository<Episode> episodeRepository
+            ICharacterService characterService
             )
         {
             _humanRepository = humanRepository;
-            _characterRepository = characterRepository;
-            _episodeRepository = episodeRepository;
+            _characterService = characterService;
         }
 
         public long CreateHuman(HumanDto dto)
@@ -32,8 +30,8 @@ namespace WebApi.Services.Services.Humans
                 Firstname = dto.Firstname,
                 Lastname = dto.Lastname
             };
-            human.Episodes = AddEpisodes(human, dto);
-            human.Friends = AddFriends(human, dto);
+            human.Episodes = _characterService.AssignEpisodes(human, dto);
+            human.Friends = _characterService.AssignFriends(human, dto);
 
 
             var humanId = _humanRepository.Add(human);
@@ -138,8 +136,8 @@ namespace WebApi.Services.Services.Humans
 
             human.Firstname = dto.Firstname;
             human.Lastname = dto.Lastname;
-            human.Episodes = UpdateEpisodes(human, dto);
-            human.Friends = UpdateFriends(human, dto);
+            human.Episodes = _characterService.UpdateEpisodes(human, dto);
+            human.Friends = _characterService.UpdateFriends(human, dto);
 
             _humanRepository.Update(human);
 
@@ -148,125 +146,12 @@ namespace WebApi.Services.Services.Humans
 
         public void DeleteHuman(long humanId)
         {
-            var human = _humanRepository.GetById(humanId);
-            human.IsDeleted = true;
-            _humanRepository.Update(human);
+            _characterService.DeleteCharacter(humanId);
         }
 
         public void DeleteHumanCascade(long humanId)
         {
-            var human = _humanRepository.GetById(humanId);
-            _humanRepository.Delete(human);
+            _characterService.DeleteCharacterCascade(humanId);
         }
-
-
-
-        private List<CharacterEpisode> AddEpisodes(Human human, HumanDto dto)
-        {
-            var episodes = new List<CharacterEpisode>();
-            foreach (var episodeId in dto.EpisodeIds)
-            {
-                var episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
-                if (episode == null)
-                {
-                    throw new Exception("Episode doesn't exist");
-                }
-
-                episodes.Add(new CharacterEpisode
-                {
-                    Character = human,
-                    Episode = episode,
-                });
-            }
-
-            return episodes;
-        }
-
-        private List<CharacterEpisode> UpdateEpisodes(Human human, HumanDto dto)
-        {
-            //Removing old episodes first
-            var episodes = new List<CharacterEpisode>();
-
-            var oldEposodeIds = human.Episodes.Select(e => e.Episode.Id).ToList();
-            foreach (var id in oldEposodeIds)
-            {
-                human.Episodes.RemoveAll(e => e.Episode.Id == id);
-            }
-
-            return AddEpisodes(human, dto);
-        }
-
-        private List<Friendship> AddFriends(Human human, HumanDto dto)
-        {
-            var friends = new List<Friendship>();
-            foreach (var friendId in dto.FriendIds)
-            {
-                var friend = _characterRepository
-                    .GetDbSet()
-                    .Include(c => c.Friends)
-                    .ThenInclude(f => f.Friend)
-                    .Where(e => e.Id == friendId)
-                    .FirstOrDefault();
-
-                if (friend == null)
-                {
-                    throw new Exception("Cannot add character which doesn't exist to friends list");
-                }
-
-                friends.Add(new Friendship
-                {
-                    Character = human,
-                    Friend = friend,
-                });
-
-                //Adding Human to his friend's Friends list
-                var humanFriend = _characterRepository
-                    .GetDbSet()
-                    .Include(c => c.Friends)
-                    .ThenInclude(f => f.Friend)
-                    .Where(e => e.Id == friendId)
-                    .FirstOrDefault();
-
-                if (humanFriend != null)
-                {
-                    humanFriend.Friends.Add(new Friendship
-                    {
-                        Character = friend,
-                        Friend = human
-                    });
-                }
-
-            }
-
-            return friends;
-        }
-
-        private List<Friendship> UpdateFriends(Human human, HumanDto dto)
-        {
-            if (dto.FriendIds.Contains(human.Id))
-            {
-                throw new Exception("Cannot add updating human to his own friends list");
-            }
-
-            //Removing Human from his old friends Friends list first
-            var oldFriendIds = human.Friends.Select(e => e.Friend.Id).ToList();
-            foreach (var id in oldFriendIds)
-            {
-                var characterFriends = _characterRepository
-                    .GetDbSet()
-                    .Include(c => c.Friends)
-                    .ThenInclude(f => f.Friend)
-                    .Where(c => c.Id == id)
-                    .Single();
-
-                characterFriends.Friends.RemoveAll(f => f.Friend.Id == human.Id);
-                _characterRepository.Update(characterFriends);
-
-                human.Friends.RemoveAll(e => e.Friend.Id == id);
-            }
-
-            return AddFriends(human, dto);
-        }
-
     }
 }

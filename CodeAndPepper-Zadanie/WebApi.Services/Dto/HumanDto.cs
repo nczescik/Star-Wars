@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace WebApi.Services.Dto
+﻿namespace WebApi.Services.Dto
 {
-    public class HumanDto
+    public class HumanDto : CharacterCollectionsDto
     {
         public long HumanId { get; set; }
         public string Firstname { get; set; }
@@ -10,12 +8,6 @@ namespace WebApi.Services.Dto
 
         public long? PlanetId { get; set; }
         public PlanetDto Planet { get; set; }
-
-
-        public IList<long> EpisodeIds { get; set; }
-        public IList<EpisodeDto> Episodes { get; set; }
-        public IList<long> FriendIds { get; set; }
-        public IList<CharacterDto> Friends { get; set; }
 
     }
 }

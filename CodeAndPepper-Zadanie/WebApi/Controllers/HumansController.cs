@@ -8,12 +8,12 @@ using WebApi.Services.Services.Humans;
 
 namespace WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
-    public class HumanController : ControllerBase
+    public class HumansController : ControllerBase
     {
         private readonly IHumanService _humanService;
-        public HumanController(
+        public HumansController(
             IHumanService humanService)
         {
             _humanService = humanService;
