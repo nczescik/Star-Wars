@@ -38,32 +38,33 @@ namespace WebApi.Services.Services.Characters
                 .Where(c => c.Id == characterId && !c.IsDeleted)
                 .FirstOrDefault();
 
-            CharacterDto dto = null;
-            if (character != null)
+            if (character == null)
             {
-                dto = new CharacterDto
-                {
-                    CharacterId = character.Id,
-                    Name = character.GetName(),
-                    Episodes = character.Episodes
-                        .Select(e => new EpisodeDto
-                        {
-                            EpisodeId = e.EpisodeId,
-                            Name = e.Episode.EpisodeName
-                        }).ToList(),
-                    Planet = character.Planet != null ? new PlanetDto
-                    {
-                        PlanetId = character.Planet.Id,
-                        Name = character.Planet.Name
-                    } : null,
-                    Friends = character.Friends
-                        .Select(f => new CharacterDto
-                        {
-                            CharacterId = f.FriendId,
-                            Name = f.Friend.GetName()
-                        }).ToList()
-                };
+                throw new Exception("Character doesn't exist");
             }
+
+            var dto = new CharacterDto
+            {
+                CharacterId = character.Id,
+                Name = character.GetName(),
+                Episodes = character.Episodes
+                    .Select(e => new EpisodeDto
+                    {
+                        EpisodeId = e.EpisodeId,
+                        Name = e.Episode.EpisodeName
+                    }).ToList(),
+                Planet = character.Planet != null ? new PlanetDto
+                {
+                    PlanetId = character.Planet.Id,
+                    Name = character.Planet.Name
+                } : null,
+                Friends = character.Friends
+                    .Select(f => new CharacterDto
+                    {
+                        CharacterId = f.FriendId,
+                        Name = f.Friend.GetName()
+                    }).ToList()
+            };
 
             return dto;
         }
@@ -115,11 +116,14 @@ namespace WebApi.Services.Services.Characters
         public void DeleteCharacter(long characterId)
         {
             var character = _repository.GetById(characterId);
-            if (character != null)
+            if (character == null)
             {
-                character.IsDeleted = true;
-                _repository.Update(character);
+                throw new Exception("Character doesn't exist");
             }
+
+            character.IsDeleted = true;
+            _repository.Update(character);
+
         }
 
         public void DeleteCharacterCascade(long characterId)
@@ -130,16 +134,18 @@ namespace WebApi.Services.Services.Characters
                 .Where(c => c.Id == characterId)
                 .FirstOrDefault();
 
-            if (character != null)
+            if (character == null)
             {
-                foreach (var child in character.Friends.ToList())
-                {
-                    _dbContext.Remove(child);
-                    _dbContext.SaveChanges();
-                }
-
-                _repository.Delete(character);
+                throw new Exception("Character doesn't exist");
             }
+
+            foreach (var child in character.Friends.ToList())
+            {
+                _dbContext.Remove(child);
+                _dbContext.SaveChanges();
+            }
+
+            _repository.Delete(character);
         }
 
         public List<CharacterEpisode> AssignEpisodes(Character character, CharacterCollectionsDto dto)
@@ -263,33 +269,35 @@ namespace WebApi.Services.Services.Characters
                 .ThenInclude(f => f.Friend)
                 .Where(c => c.Id == characterId && !c.IsDeleted)
                 .FirstOrDefaultAsync();
-            
-            CharacterDto characterDto = null;
-            if (character != null)
+
+            if (character == null)
             {
-                characterDto = new CharacterDto
-                {
-                    CharacterId = character.Id,
-                    Name = character.GetName(),
-                    Episodes = character.Episodes
-                    .Select(e => new EpisodeDto
-                    {
-                        EpisodeId = e.EpisodeId,
-                        Name = e.Episode.EpisodeName
-                    }).ToList(),
-                    Planet = character.Planet != null ? new PlanetDto
-                    {
-                        PlanetId = character.Planet.Id,
-                        Name = character.Planet.Name
-                    } : null,
-                    Friends = character.Friends
-                    .Select(f => new CharacterDto
-                    {
-                        CharacterId = f.FriendId,
-                        Name = f.Friend.GetName()
-                    }).ToList()
-                };
+                throw new Exception("Character doesn't exist");
             }
+
+            var characterDto = new CharacterDto
+            {
+                CharacterId = character.Id,
+                Name = character.GetName(),
+                Episodes = character.Episodes
+                .Select(e => new EpisodeDto
+                {
+                    EpisodeId = e.EpisodeId,
+                    Name = e.Episode.EpisodeName
+                }).ToList(),
+                Planet = character.Planet != null ? new PlanetDto
+                {
+                    PlanetId = character.Planet.Id,
+                    Name = character.Planet.Name
+                } : null,
+                Friends = character.Friends
+                .Select(f => new CharacterDto
+                {
+                    CharacterId = f.FriendId,
+                    Name = f.Friend.GetName()
+                }).ToList()
+            };
+
             return characterDto;
         }
 
@@ -340,11 +348,13 @@ namespace WebApi.Services.Services.Characters
         public async Task DeleteCharacterAsync(long characterId)
         {
             var character = await _repository.GetByIdAsync(characterId);
-            if (character != null)
+            if (character == null)
             {
-                character.IsDeleted = true;
-                await _repository.UpdateAsync(character);
+                throw new Exception("Character doesn't exist");
             }
+
+            character.IsDeleted = true;
+            await _repository.UpdateAsync(character);
         }
 
         public async Task DeleteCharacterCascadeAsync(long characterId)
@@ -355,16 +365,19 @@ namespace WebApi.Services.Services.Characters
                 .Where(c => c.Id == characterId)
                 .FirstOrDefault();
 
-            if (character != null)
+            if (character == null)
             {
-                foreach (var child in character.Friends.ToList())
-                {
-                    _dbContext.Remove(child);
-                    await _dbContext.SaveChangesAsync();
-                }
-
-                await _repository.DeleteAsync(character);
+                throw new Exception("Character doesn't exist");
             }
+
+            foreach (var child in character.Friends.ToList())
+            {
+                _dbContext.Remove(child);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            await _repository.DeleteAsync(character);
+
         }
 
         #endregion
