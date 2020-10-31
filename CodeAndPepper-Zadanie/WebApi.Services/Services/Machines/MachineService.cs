@@ -142,15 +142,12 @@ namespace WebApi.Services.Services.Machines
 
         public void DeleteMachine(long machineId)
         {
-            var machine = _machineRepository.GetById(machineId);
-            machine.IsDeleted = true;
-            _machineRepository.Update(machine);
+            _characterService.DeleteCharacter(machineId);
         }
 
         public void DeleteMachineCascade(long machineId)
         {
-            var machine = _machineRepository.GetById(machineId);
-            _machineRepository.Delete(machine);
+            _characterService.DeleteCharacterCascade(machineId);
         }
     }
 }
