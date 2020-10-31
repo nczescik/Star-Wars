@@ -72,8 +72,8 @@ namespace WebApi.DAL
 
 
             //Mapping Discriminator
-            builder.Entity<Character>()
-                .HasDiscriminator(c => c.Discriminator);
+            //builder.Entity<Character>()
+            //    .HasDiscriminator(c => c.Discriminator);
 
             //Adding Humans to database
             builder

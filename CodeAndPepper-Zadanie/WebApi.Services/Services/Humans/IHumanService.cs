@@ -10,7 +10,7 @@ namespace WebApi.Services.Services.Humans
         long CreateHuman(HumanDto dto);
         HumanDto GetHuman(long id);
         IList<HumanDto> GetHumansList();
-        long? UpdateHuman(HumanDto dto);
+        long UpdateHuman(HumanDto dto);
         void DeleteHuman(long humanId);
         void DeleteHumanCascade(long humanId);
     }

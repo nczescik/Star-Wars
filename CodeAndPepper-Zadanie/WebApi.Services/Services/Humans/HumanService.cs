@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.DAL.Entities;
@@ -28,15 +29,57 @@ namespace WebApi.Services.Services.Humans
         {
             var human = new Human
             {
-
+                Firstname = dto.Firstname,
+                Lastname = dto.Lastname
             };
+            human.Episodes = AddEpisodes(human, dto);
+            human.Friends = AddFriends(human, dto);
 
-            return _humanRepository.Add(human);
+
+            var humanId = _humanRepository.Add(human);
+
+            return humanId;
         }
 
         public HumanDto GetHuman(long id)
         {
-            throw new System.NotImplementedException();
+            var human = _humanRepository.GetDbSet()
+                .Include(h => h.Friends)
+                .ThenInclude(f => f.Friend)
+                .Include(h => h.Episodes)
+                .ThenInclude(e => e.Episode)
+                .Where(h => h.Id == id)
+                .FirstOrDefault();
+
+            if (human == null)
+            {
+                throw new Exception("Human doesn't exist");
+            }
+
+            var episodes = human.Episodes
+                .Select(e => new EpisodeDto
+                {
+                    EpisodeId = e.EpisodeId,
+                    Name = e.Episode.EpisodeName
+                }).ToList();
+
+            var friends = human.Friends
+                .Select(c => new CharacterDto
+                {
+                    CharacterId = c.Friend.Id,
+                    Name = c.Friend.GetName()
+                }).ToList();
+
+            var dto = new HumanDto
+            {
+                HumanId = human.Id,
+                Firstname = human.Firstname,
+                Lastname = human.Lastname,
+                Episodes = episodes,
+                Friends = friends
+            };
+
+            return dto;
         }
 
         public IList<HumanDto> GetHumansList()
@@ -78,32 +121,68 @@ namespace WebApi.Services.Services.Humans
             return dtos;
         }
 
-        public long? UpdateHuman(HumanDto dto)
+        public long UpdateHuman(HumanDto dto)
         {
             var human = _humanRepository.GetDbSet()
                 .Include(h => h.Friends)
                 .ThenInclude(f => f.Friend)
                 .Include(h => h.Episodes)
                 .ThenInclude(e => e.Episode)
+                .Where(h => h.Id == dto.HumanId)
                 .FirstOrDefault();
 
             if (human == null)
             {
-                return null;
+                throw new Exception("User doesn't exist");
             }
 
             human.Firstname = dto.Firstname;
             human.Lastname = dto.Lastname;
-
-            human = UpdateEpisodes(human, dto);
-            human = UpdateFriends(human, dto);
+            human.Episodes = UpdateEpisodes(human, dto);
+            human.Friends = UpdateFriends(human, dto);
 
             _humanRepository.Update(human);
 
             return human.Id;
         }
 
-        private Human UpdateEpisodes(Human human, HumanDto dto)
+        public void DeleteHuman(long humanId)
+        {
+            var human = _humanRepository.GetById(humanId);
+            human.IsDeleted = true;
+            _humanRepository.Update(human);
+        }
+
+        public void DeleteHumanCascade(long humanId)
+        {
+            var human = _humanRepository.GetById(humanId);
+            _humanRepository.Delete(human);
+        }
+
+
+
+        private List<CharacterEpisode> AddEpisodes(Human human, HumanDto dto)
+        {
+            var episodes = new List<CharacterEpisode>();
+            foreach (var episodeId in dto.EpisodeIds)
+            {
+                var episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
+                if (episode == null)
+                {
+                    throw new Exception("Episode doesn't exist");
+                }
+
+                episodes.Add(new CharacterEpisode
+                {
+                    Character = human,
+                    Episode = episode,
+                });
+            }
+
+            return episodes;
+        }
+
+        private List<CharacterEpisode> UpdateEpisodes(Human human, HumanDto dto)
         {
             var episodes = new List<CharacterEpisode>();
 
@@ -113,26 +192,61 @@ namespace WebApi.Services.Services.Humans
                 human.Episodes.RemoveAll(e => e.Episode.Id == id);
             }
 
-            foreach (var episodeId in dto.EpisodeIds)
-            {
-                var episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
-                if (episode != null)
-                {
-                    episodes.Add(new CharacterEpisode
-                    {
-                        Character = human,
-                        Episode = episode,
-                    });
-                }
-            }
-
-            human.Episodes.AddRange(episodes);
-
-            return human;
+            return AddEpisodes(human, dto);
         }
 
-        private Human UpdateFriends(Human human, HumanDto dto)
+        private List<Friendship> AddFriends(Human human, HumanDto dto)
         {
+            var friends = new List<Friendship>();
+            foreach (var friendId in dto.FriendIds)
+            {
+                var friend = _characterRepository
+                    .GetDbSet()
+                    .Include(c => c.Friends)
+                    .ThenInclude(f => f.Friend)
+                    .Where(e => e.Id == friendId)
+                    .FirstOrDefault();
+
+                if (friend == null)
+                {
+                    throw new Exception("Cannot add character which doesn't exist to friends list");
+                }
+
+                friends.Add(new Friendship
+                {
+                    Character = human,
+                    Friend = friend,
+                });
+
+                //Adding Human to his friend's Friends list
+                var humanFriend = _characterRepository
+                    .GetDbSet()
+                    .Include(c => c.Friends)
+                    .ThenInclude(f => f.Friend)
+                    .Where(e => e.Id == friendId)
+                    .FirstOrDefault();
+
+                if (humanFriend != null)
+                {
+                    humanFriend.Friends.Add(new Friendship
+                    {
+                        Character = friend,
+                        Friend = human
+                    });
+                }
+
+            }
+
+            return friends;
+        }
+
+        private List<Friendship> UpdateFriends(Human human, HumanDto dto)
+        {
+            if (dto.FriendIds.Contains(human.Id))
+            {
+                throw new Exception("Cannot add updating human to his own friends list");
+            }
+
             //Removing Human from his old friends Friends list first
             var oldFriendIds = human.Friends.Select(e => e.Friend.Id).ToList();
             foreach (var id in oldFriendIds)
@@ -150,54 +264,8 @@ namespace WebApi.Services.Services.Humans
                 human.Friends.RemoveAll(e => e.Friend.Id == id);
             }
 
-            var friends = new List<Friendship>();
-            foreach (var friendId in dto.FriendIds)
-            {
-                var character = _characterRepository
-                    .GetDbSet()
-                    .Include(c => c.Friends)
-                    .ThenInclude(f => f.Friend)
-                    .Where(e => e.Id == friendId)
-                    .FirstOrDefault();
-
-                if (character != null)
-                {
-                    //Adding Human to Friends list of his new friends
-                    character.Friends.Add(new Friendship
-                    {
-                        Character = character,
-                        CharacterId = character.Id,
-                        Friend = human,
-                        FriendId = human.Id
-                    });
-                    _characterRepository.Update(character);
-
-                    friends.Add(new Friendship
-                    {
-                        Character = human,
-                        CharacterId = human.Id,
-                        Friend = character,
-                        FriendId = character.Id
-                    });
-                }
-            }
-
-            human.Friends.AddRange(friends);
-
-            return human;
+            return AddFriends(human, dto);
         }
 
-        public void DeleteHuman(long humanId)
-        {
-            var human = _humanRepository.GetById(humanId);
-            human.IsDeleted = true;
-            _humanRepository.Update(human);
-        }
-
-        public void DeleteHumanCascade(long humanId)
-        {
-            var human = _humanRepository.GetById(humanId);
-            _humanRepository.Delete(human);
-        }
     }
 }

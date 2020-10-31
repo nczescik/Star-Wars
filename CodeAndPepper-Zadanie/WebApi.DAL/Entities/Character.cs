@@ -14,7 +14,9 @@ namespace WebApi.DAL.Entities
         public long? PlanetId { get; set; }
         public virtual Planet Planet { get; set; }
 
-        public string Discriminator { get; set; }
+
+        //I have decided to use GetType() to distinguish characters
+        //public string Discriminator { get; set; }
 
         public List<CharacterEpisode> Episodes { get; set; }
         public List<Friendship> Friends { get; set; }
