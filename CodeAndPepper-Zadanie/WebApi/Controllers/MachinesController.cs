@@ -92,5 +92,19 @@ namespace WebApi.Controllers
 
             return Ok(new { machineId = id });
         }
+
+        [HttpDelete("Delete")]
+        public IActionResult DeleteMachine(long machineId)
+        {
+            _machineService.DeleteMachine(machineId);
+            return Ok();
+        }
+
+        [HttpDelete("DeleteCascade")]
+        public IActionResult DeleteMachineCascade(long machineId)
+        {
+            _machineService.DeleteMachineCascade(machineId);
+            return Ok();
+        }
     }
 }

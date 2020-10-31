@@ -96,5 +96,19 @@ namespace WebApi.Controllers
 
             return Ok(new { HumanId = id });
         }
+
+        [HttpDelete("Delete")]
+        public IActionResult DeleteHuman(long humanId)
+        {
+            _humanService.DeleteHuman(humanId);
+            return Ok();
+        }
+
+        [HttpDelete("DeleteCascade")]
+        public IActionResult DeleteHumanCascade(long humanId)
+        {
+            _humanService.DeleteHumanCascade(humanId);
+            return Ok();
+        }
     }
 }
