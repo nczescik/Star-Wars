@@ -2,11 +2,10 @@
 
 namespace WebApi.Services.Dto
 {
-    public class HumanDto
+    public class MachineDto
     {
-        public long HumanId { get; set; }
-        public string Firstname { get; set; }
-        public string Lastname { get; set; }
+        public long MachineId { get; set; }
+        public string Name { get; set; }
 
         public long? PlanetId { get; set; }
         public PlanetDto Planet { get; set; }
@@ -16,6 +15,5 @@ namespace WebApi.Services.Dto
         public IList<EpisodeDto> Episodes { get; set; }
         public IList<long> FriendIds { get; set; }
         public IList<CharacterDto> Friends { get; set; }
-
     }
 }

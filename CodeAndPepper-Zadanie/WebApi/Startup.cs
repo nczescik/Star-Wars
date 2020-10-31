@@ -35,10 +35,10 @@ namespace WebApi
                 app.UseDeveloperExceptionPage()
                     .UseSwaggerExt();
             }
-            app.UseExceptionHandler("/error");
             app.UseHttpsRedirection()
                 .UseRouting()
                 .UseAuthorization()
+                .UseExceptionHandler("/error")
                 .UseEndpointsExt();
 
             starWarsDbContext.Database.EnsureCreated();
