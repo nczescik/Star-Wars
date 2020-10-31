@@ -184,6 +184,7 @@ namespace WebApi.Services.Services.Humans
 
         private List<CharacterEpisode> UpdateEpisodes(Human human, HumanDto dto)
         {
+            //Removing old episodes first
             var episodes = new List<CharacterEpisode>();
 
             var oldEposodeIds = human.Episodes.Select(e => e.Episode.Id).ToList();

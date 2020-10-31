@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebApi.Helpers;
 using WebApi.Models.Characters;
-using WebApi.Services.Dto;
 using WebApi.Services.Services.Characters;
 using WebApi.Services.Services.Episodes;
 

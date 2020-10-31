@@ -33,10 +33,11 @@ namespace WebAPI.DAL.Repositories
 
         public T GetById(long Id) => _dbContext.Set<T>().Find(Id);
 
-        public void Update(T entity)
+        public long Update(T entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
             _dbContext.SaveChanges();
+            return _dbContext.Entry(entity).Entity.Id;
         }
 
         public IQueryable<T> GetDbSet() => _dbContext.Set<T>();

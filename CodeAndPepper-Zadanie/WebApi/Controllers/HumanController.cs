@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.Helpers;
@@ -23,46 +22,32 @@ namespace WebApi.Controllers
         [HttpPost("Create")]
         public IActionResult Create(HumanModel model)
         {
-            try
+            var dto = new HumanDto
             {
-                var dto = new HumanDto
-                {
-                    Firstname = model.Firstname,
-                    Lastname = model.Lastname,
-                    FriendIds = model.FriendIds,
-                    EpisodeIds = model.EpisodeIds
-                };
+                Firstname = model.Firstname,
+                Lastname = model.Lastname,
+                FriendIds = model.FriendIds,
+                EpisodeIds = model.EpisodeIds
+            };
 
-                var id = _humanService.CreateHuman(dto);
+            var id = _humanService.CreateHuman(dto);
 
-                return Ok(new { HumanId = id });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            return Ok(new { HumanId = id });
         }
 
         [HttpGet("GetHuman/{userId}")]
         public IActionResult GetHuman(long userId)
         {
-            try
+            var dto = _humanService.GetHuman(userId);
+            var model = new HumanViewModel
             {
-                var dto = _humanService.GetHuman(userId);
-                var model = new HumanViewModel
-                {
-                    Firstname = dto.Firstname,
-                    Lastname = dto.Lastname,
-                    Episodes = dto.Episodes.Select(e => e.Name).ToList(),
-                    Friends = dto.Friends.Select(f => f.Name).ToList()
-                };
+                Firstname = dto.Firstname,
+                Lastname = dto.Lastname,
+                Episodes = dto.Episodes.Select(e => e.Name).ToList(),
+                Friends = dto.Friends.Select(f => f.Name).ToList()
+            };
 
-                return Ok(new { Human = model });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
+            return Ok(new { Human = model });
         }
 
         [HttpGet("GetHumans")]
@@ -93,31 +78,23 @@ namespace WebApi.Controllers
         [HttpPut("Update")]
         public IActionResult Update(HumanModel model)
         {
-            try
+            if (!model.HumanId.HasValue || model.HumanId.Value == 0)
             {
-                if (!model.HumanId.HasValue || model.HumanId.Value == 0)
-                {
-                    return BadRequest(new { Message = "Incorrect value of human Id" });
-                }
-
-                var dto = new HumanDto
-                {
-                    HumanId = model.HumanId.Value,
-                    Firstname = model.Firstname,
-                    Lastname = model.Lastname,
-                    FriendIds = model.FriendIds,
-                    EpisodeIds = model.EpisodeIds
-                };
-
-                var id = _humanService.UpdateHuman(dto);
-
-                return Ok(new { HumanId = id });
+                return BadRequest(new { Message = "Incorrect value of human Id" });
             }
-            catch (Exception ex)
+
+            var dto = new HumanDto
             {
-                return BadRequest(new { Message = ex.Message });
-            }
-            
+                HumanId = model.HumanId.Value,
+                Firstname = model.Firstname,
+                Lastname = model.Lastname,
+                FriendIds = model.FriendIds,
+                EpisodeIds = model.EpisodeIds
+            };
+
+            var id = _humanService.UpdateHuman(dto);
+
+            return Ok(new { HumanId = id });
         }
     }
 }

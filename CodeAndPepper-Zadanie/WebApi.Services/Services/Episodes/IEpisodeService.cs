@@ -9,7 +9,7 @@ namespace WebApi.Services.Services.Episodes
         long CreateEpisode(EpisodeDto episodeDto);
         EpisodeDto GetEpisode(long EpisodeId);
         IList<EpisodeDto> GetEpisodesList();
-        long? UpdateEpisode(EpisodeDto episodeDto);
+        long UpdateEpisode(EpisodeDto episodeDto);
         void DeleteEpisode(long EpisodeId);
         void DeleteEpisodeCascade(long EpisodeId);
         Task<EpisodeDto> GetEpisodeAsync(long EpisodeId);

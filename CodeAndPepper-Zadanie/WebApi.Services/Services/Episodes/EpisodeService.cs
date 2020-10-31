@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,29 +27,9 @@ namespace WebApi.Services.Services.Episodes
             {
                 EpisodeName = episodeDto.Name
             };
+            episode.Characters = AddCharacters(episode, episodeDto);
 
             var episodeId = _episodeRepository.Add(episode);
-
-            var characters = new List<CharacterEpisode>();
-            episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
-            foreach (var id in episodeDto.CharacterIds)
-            {
-                var character = _characterRepository.GetDbSet().Where(c => c.Id == id).FirstOrDefault();
-                if (character != null)
-                {
-                    characters.Add(new CharacterEpisode
-                    {
-                        Character = character,
-                        CharacterId = id,
-                        Episode = episode,
-                        EpisodeId = episodeId
-                    });
-                }
-            }
-
-            episode.Characters.AddRange(characters);
-            _episodeRepository.Update(episode);
-
             return episodeId;
         }
 
@@ -60,16 +41,17 @@ namespace WebApi.Services.Services.Episodes
                 .Where(c => c.Id == EpisodeId && !c.IsDeleted)
                 .FirstOrDefault();
 
-            EpisodeDto dto = null;
-            if (episode != null)
+            if (episode == null)
             {
-                dto = new EpisodeDto
-                {
-                    EpisodeId = episode.Id,
-                    Name = episode.EpisodeName,
-                    CharacterIds = episode.Characters.Select(c => c.CharacterId).ToList()
-                };
+                throw new Exception("Episode doesn't exist");
             }
+
+            var dto = new EpisodeDto
+            {
+                EpisodeId = episode.Id,
+                Name = episode.EpisodeName,
+                CharacterIds = episode.Characters.Select(c => c.CharacterId).ToList()
+            };
 
             return dto;
         }
@@ -98,37 +80,20 @@ namespace WebApi.Services.Services.Episodes
             return result;
         }
 
-        public long? UpdateEpisode(EpisodeDto episodeDto)
+        public long UpdateEpisode(EpisodeDto episodeDto)
         {
             var episode = _episodeRepository.GetById(episodeDto.EpisodeId);
             if (episode == null)
             {
-                return null;
+                throw new Exception("Episode doesn't exist");
             }
 
             episode.EpisodeName = episodeDto.Name;
+            episode.Characters = UpdateCharacters(episode, episodeDto);
 
-            var characters = new List<CharacterEpisode>();
-            foreach (var id in episodeDto.CharacterIds)
-            {
-                var character = _characterRepository.GetDbSet().Where(c => c.Id == id).FirstOrDefault();
-                if (character != null)
-                {
-                    episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeDto.EpisodeId).FirstOrDefault();
-                    characters.Add(new CharacterEpisode
-                    {
-                        Character = character,
-                        CharacterId = id,
-                        Episode = episode,
-                        EpisodeId = episodeDto.EpisodeId
-                    });
-                }
-            }
+            var episodeId = _episodeRepository.Update(episode);
 
-            episode.Characters.AddRange(characters);
-            _episodeRepository.Update(episode);
-
-            return episodeDto.EpisodeId;
+            return episodeId;
         }
 
         public void DeleteEpisode(long episodeId)
@@ -157,19 +122,23 @@ namespace WebApi.Services.Services.Episodes
         {
             var episode = await _episodeRepository
                 .GetDbSet()
+                .Include(e => e.Characters)
                 .Where(c => c.Id == episodeId && !c.IsDeleted)
                 .FirstOrDefaultAsync();
 
-            EpisodeDto EpisodeDto = null;
-            if (episode != null)
+            if (episode == null)
             {
-                EpisodeDto = new EpisodeDto
-                {
-                    EpisodeId = episode.Id,
-                    Name = episode.EpisodeName
-                };
+                throw new Exception("Episode doesn't exist");
             }
-            return EpisodeDto;
+
+            var episodeDto = new EpisodeDto
+            {
+                EpisodeId = episode.Id,
+                Name = episode.EpisodeName,
+                CharacterIds = episode.Characters.Select(c => c.CharacterId).ToList()
+            };
+
+            return episodeDto;
         }
 
         public async Task<IList<EpisodeDto>> GetEpisodesListAsync()
@@ -177,6 +146,7 @@ namespace WebApi.Services.Services.Episodes
             var result = new List<EpisodeDto>();
             var episodes = await _episodeRepository
                 .GetDbSet()
+                .Include(e => e.Characters)
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
 
@@ -185,7 +155,8 @@ namespace WebApi.Services.Services.Episodes
                 var episodeDto = new EpisodeDto
                 {
                     EpisodeId = episode.Id,
-                    Name = episode.EpisodeName
+                    Name = episode.EpisodeName,
+                    CharacterIds = episode.Characters.Select(c => c.CharacterId).ToList()
                 };
 
                 result.Add(episodeDto);
@@ -214,5 +185,43 @@ namespace WebApi.Services.Services.Episodes
         }
 
         #endregion
+
+
+
+        private List<CharacterEpisode> AddCharacters(Episode episode, EpisodeDto episodeDto)
+        {
+            var characters = new List<CharacterEpisode>();
+            foreach (var id in episodeDto.CharacterIds)
+            {
+                var character = _characterRepository.GetDbSet().Where(c => c.Id == id).FirstOrDefault();
+                if (character == null)
+                {
+                    throw new Exception("Cannot assing character which doesn't exist to episode");
+                }
+
+                characters.Add(new CharacterEpisode
+                {
+                    Character = character,
+                    Episode = episode
+                });
+            }
+
+            return characters;
+        }
+
+        private List<CharacterEpisode> UpdateCharacters(Episode episode, EpisodeDto dto)
+        {
+            //Removing old characters first
+            var characters = new List<CharacterEpisode>();
+
+            var oldCharacterIds = episode.Characters.Select(e => e.Character.Id).ToList();
+            foreach (var id in oldCharacterIds)
+            {
+                episode.Characters.RemoveAll(e => e.Character.Id == id);
+            }
+
+            return AddCharacters(episode, dto);
+        }
+
     }
 }

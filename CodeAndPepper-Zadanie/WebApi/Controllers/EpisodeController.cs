@@ -88,13 +88,8 @@ namespace WebApi.Controllers
             };
 
             var id = _episodeService.UpdateEpisode(episodeDto);
-            if (!id.HasValue)
-            {
-                return Ok(new { Message = "Episode doesn't exists" });
-            }
 
             return Ok(new { EpisodeId = id });
-
         }
 
         [HttpDelete("Delete")]

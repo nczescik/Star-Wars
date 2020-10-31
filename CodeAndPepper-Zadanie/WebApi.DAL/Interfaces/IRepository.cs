@@ -12,7 +12,7 @@ namespace WebAPI.DAL.Interfaces
 
         IList<T> GetAll();
 
-        void Update(T entity);
+        long Update(T entity);
 
         void Delete(T entity);
 
