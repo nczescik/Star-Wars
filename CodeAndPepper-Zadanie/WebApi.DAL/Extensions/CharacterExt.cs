@@ -7,12 +7,13 @@ namespace WebApi.DAL.Extensions
         public static string GetName(this Character character)
         {
             string result = "";
-            if (character.Discriminator == "Human")
+            var type = character.GetType();
+            if (type == typeof(Human))
             {
                 var human = (Human)character;
                 result = human.Firstname + " " + human.Lastname;
             }
-            else if (character.Discriminator == "Machine")
+            else if (type == typeof(Machine))
             {
                 var machine = (Machine)character;
                 result = machine.Name;
