@@ -26,11 +26,6 @@ namespace WebApi.Controllers
         {
             var character = _characterService.GetCharacter(userId);
 
-            if (character == null)
-            {
-                return Ok(new { Message = "Character doesn't exist" });
-            }
-
             var model = new CharacterViewModel
             {
                 Name = character.Name,
@@ -42,7 +37,6 @@ namespace WebApi.Controllers
             var json = JsonHelper<CharacterViewModel>.JsonConverter(model, "character");
 
             return Content(json, "application/json");
-
         }
 
         [HttpGet("GetCharacters")]
