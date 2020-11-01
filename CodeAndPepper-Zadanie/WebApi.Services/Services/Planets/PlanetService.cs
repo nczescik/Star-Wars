@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using WebApi.DAL.Entities;
 using WebApi.Services.Dto;
 using WebAPI.DAL.Interfaces;
@@ -31,6 +32,10 @@ namespace WebApi.Services.Services.Planets
         public PlanetDto GetPlanet(long id)
         {
             var planet = _planetRepository.GetById(id);
+            if (planet == null)
+            {
+                throw new Exception("Planet doesn't exist");
+            }
             var planetDto = new PlanetDto
             {
                 PlanetId = planet.Id,
@@ -81,6 +86,12 @@ namespace WebApi.Services.Services.Planets
         {
             var planet = _planetRepository.GetById(planetId);
             _planetRepository.Delete(planet);
+        }
+
+        public void AssignPlanet(Character character, long planetId)
+        {
+            var planet = _planetRepository.GetById(planetId);
+            character.Planet = planet ?? throw new Exception("Planet doesn't exist");
         }
     }
 }

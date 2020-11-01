@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using WebApi.DAL.Entities;
 using WebApi.Services.Dto;
 
 namespace WebApi.Services.Services.Planets
@@ -11,5 +12,6 @@ namespace WebApi.Services.Services.Planets
         long UpdatePlanet(PlanetDto dto);
         void DeletePlanet(long planetId);
         void DeletePlanetCascade(long planetId);
+        void AssignPlanet(Character character, long planetId);
     }
 }

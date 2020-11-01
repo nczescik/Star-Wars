@@ -11,10 +11,8 @@ namespace WebApi.Services.Services.Characters
         IList<CharacterDto> GetCharactersList();
         void DeleteCharacter(long characterId);
         void DeleteCharacterCascade(long characterId);
-        List<CharacterEpisode> AssignEpisodes(Character character, CharacterCollectionsDto dto);
-        List<CharacterEpisode> UpdateEpisodes(Character character, CharacterCollectionsDto dto);
-        List<Friendship> AssignFriends(Character character, CharacterCollectionsDto dto);
-        List<Friendship> UpdateFriends(Character character, CharacterCollectionsDto dto);
+        void AssignFriends(Character character, IList<long> ids);
+        void UpdateFriends(Character character, IList<long> ids);
         Task<CharacterDto> GetCharacterAsync(long characterId);
         Task<IList<CharacterDto>> GetCharactersListAsync();
         Task DeleteCharacterAsync(long characterId);

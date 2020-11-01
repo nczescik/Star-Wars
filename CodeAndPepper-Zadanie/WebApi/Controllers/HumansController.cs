@@ -27,6 +27,7 @@ namespace WebApi.Controllers
             {
                 Firstname = model.Firstname,
                 Lastname = model.Lastname,
+                PlanetId = model.PlanetId,
                 FriendIds = model.FriendIds,
                 EpisodeIds = model.EpisodeIds
             };
@@ -89,6 +90,7 @@ namespace WebApi.Controllers
                 HumanId = model.HumanId.Value,
                 Firstname = model.Firstname,
                 Lastname = model.Lastname,
+                PlanetId = model.PlanetId,
                 FriendIds = model.FriendIds,
                 EpisodeIds = model.EpisodeIds
             };

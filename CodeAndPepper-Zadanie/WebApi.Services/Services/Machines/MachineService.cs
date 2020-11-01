@@ -6,6 +6,8 @@ using WebApi.DAL.Entities;
 using WebApi.DAL.Extensions;
 using WebApi.Services.Dto;
 using WebApi.Services.Services.Characters;
+using WebApi.Services.Services.Episodes;
+using WebApi.Services.Services.Planets;
 using WebAPI.DAL.Interfaces;
 
 namespace WebApi.Services.Services.Machines
@@ -14,13 +16,19 @@ namespace WebApi.Services.Services.Machines
     {
         private readonly IRepository<Machine> _machineRepository;
         private readonly ICharacterService _characterService;
+        private readonly IEpisodeService _episodeService;
+        private readonly IPlanetService _planetService;
         public MachineService(
             IRepository<Machine> machineRepository,
-            ICharacterService characterService
+            ICharacterService characterService,
+            IEpisodeService episodeService,
+            IPlanetService planetService
             )
         {
             _machineRepository = machineRepository;
             _characterService = characterService;
+            _episodeService = episodeService;
+            _planetService = planetService;
         }
 
         public long CreateMachine(MachineDto dto)
@@ -29,8 +37,13 @@ namespace WebApi.Services.Services.Machines
             {
                 Name = dto.Name
             };
-            machine.Episodes = _characterService.AssignEpisodes(machine, dto);
-            machine.Friends = _characterService.AssignFriends(machine, dto);
+
+            if (dto.PlanetId.HasValue)
+            {
+                _planetService.AssignPlanet(machine, dto.PlanetId.Value);
+            }
+            _episodeService.AssignEpisodes(machine, dto.EpisodeIds);
+            _characterService.AssignFriends(machine, dto.FriendIds);
 
 
             var machineId = _machineRepository.Add(machine);
@@ -132,8 +145,12 @@ namespace WebApi.Services.Services.Machines
             }
 
             machine.Name = dto.Name;
-            machine.Episodes = _characterService.UpdateEpisodes(machine, dto);
-            machine.Friends = _characterService.UpdateFriends(machine, dto);
+            if (dto.PlanetId.HasValue)
+            {
+                _planetService.AssignPlanet(machine, dto.PlanetId.Value);
+            }
+            _episodeService.UpdateEpisodes(machine, dto.EpisodeIds);
+            _characterService.UpdateFriends(machine, dto.FriendIds);
 
             _machineRepository.Update(machine);
 

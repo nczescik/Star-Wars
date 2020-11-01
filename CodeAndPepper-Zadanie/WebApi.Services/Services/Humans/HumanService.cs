@@ -6,6 +6,8 @@ using WebApi.DAL.Entities;
 using WebApi.DAL.Extensions;
 using WebApi.Services.Dto;
 using WebApi.Services.Services.Characters;
+using WebApi.Services.Services.Episodes;
+using WebApi.Services.Services.Planets;
 using WebAPI.DAL.Interfaces;
 
 namespace WebApi.Services.Services.Humans
@@ -14,13 +16,20 @@ namespace WebApi.Services.Services.Humans
     {
         private readonly IRepository<Human> _humanRepository;
         private readonly ICharacterService _characterService;
+        private readonly IEpisodeService _episodeService;
+        private readonly IPlanetService _planetService;
+
         public HumanService(
             IRepository<Human> humanRepository,
-            ICharacterService characterService
+            ICharacterService characterService,
+            IEpisodeService episodeService,
+            IPlanetService planetService
             )
         {
             _humanRepository = humanRepository;
             _characterService = characterService;
+            _episodeService = episodeService;
+            _planetService = planetService;
         }
 
         public long CreateHuman(HumanDto dto)
@@ -30,8 +39,13 @@ namespace WebApi.Services.Services.Humans
                 Firstname = dto.Firstname,
                 Lastname = dto.Lastname
             };
-            human.Episodes = _characterService.AssignEpisodes(human, dto);
-            human.Friends = _characterService.AssignFriends(human, dto);
+
+            if (dto.PlanetId.HasValue)
+            {
+                _planetService.AssignPlanet(human, dto.PlanetId.Value);
+            }
+            _episodeService.AssignEpisodes(human, dto.EpisodeIds);
+            _characterService.AssignFriends(human, dto.FriendIds);
 
 
             var humanId = _humanRepository.Add(human);
@@ -136,8 +150,12 @@ namespace WebApi.Services.Services.Humans
 
             human.Firstname = dto.Firstname;
             human.Lastname = dto.Lastname;
-            human.Episodes = _characterService.UpdateEpisodes(human, dto);
-            human.Friends = _characterService.UpdateFriends(human, dto);
+            if (dto.PlanetId.HasValue)
+            {
+                _planetService.AssignPlanet(human, dto.PlanetId.Value);
+            }
+            _episodeService.UpdateEpisodes(human, dto.EpisodeIds);
+            _characterService.UpdateFriends(human, dto.FriendIds);
 
             _humanRepository.Update(human);
 

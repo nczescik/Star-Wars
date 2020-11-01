@@ -27,7 +27,7 @@ namespace WebApi.Services.Services.Episodes
             {
                 EpisodeName = episodeDto.Name
             };
-            episode.Characters = AddCharacters(episode, episodeDto);
+            AssignCharacters(episode, episodeDto);
 
             var episodeId = _episodeRepository.Add(episode);
             return episodeId;
@@ -89,7 +89,7 @@ namespace WebApi.Services.Services.Episodes
             }
 
             episode.EpisodeName = episodeDto.Name;
-            episode.Characters = UpdateCharacters(episode, episodeDto);
+            UpdateCharacters(episode, episodeDto);
 
             var episodeId = _episodeRepository.Update(episode);
 
@@ -188,7 +188,43 @@ namespace WebApi.Services.Services.Episodes
 
 
 
-        private List<CharacterEpisode> AddCharacters(Episode episode, EpisodeDto episodeDto)
+        public void AssignEpisodes(Character character, IList<long> ids)
+        {
+            var episodes = new List<CharacterEpisode>();
+            foreach (var episodeId in ids)
+            {
+                var episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
+                if (episode == null)
+                {
+                    throw new Exception("Episode doesn't exist");
+                }
+
+                episodes.Add(new CharacterEpisode
+                {
+                    Character = character,
+                    Episode = episode,
+                });
+            }
+
+            character.Episodes = episodes;
+        }
+
+        public void UpdateEpisodes(Character character, IList<long> ids)
+        {
+            //Removing old episodes first
+            var episodes = new List<CharacterEpisode>();
+
+            var oldEposodeIds = character.Episodes.Select(e => e.Episode.Id).ToList();
+            foreach (var id in oldEposodeIds)
+            {
+                character.Episodes.RemoveAll(e => e.Episode.Id == id);
+            }
+
+            AssignEpisodes(character, ids);
+        }
+
+
+        private void AssignCharacters(Episode episode, EpisodeDto episodeDto)
         {
             var characters = new List<CharacterEpisode>();
             foreach (var id in episodeDto.CharacterIds)
@@ -206,10 +242,10 @@ namespace WebApi.Services.Services.Episodes
                 });
             }
 
-            return characters;
+            episode.Characters = characters;
         }
 
-        private List<CharacterEpisode> UpdateCharacters(Episode episode, EpisodeDto dto)
+        private void UpdateCharacters(Episode episode, EpisodeDto dto)
         {
             //Removing old characters first
             var characters = new List<CharacterEpisode>();
@@ -220,7 +256,7 @@ namespace WebApi.Services.Services.Episodes
                 episode.Characters.RemoveAll(e => e.Character.Id == id);
             }
 
-            return AddCharacters(episode, dto);
+            AssignCharacters(episode, dto);
         }
 
     }

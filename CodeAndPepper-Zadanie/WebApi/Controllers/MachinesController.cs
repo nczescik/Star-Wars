@@ -26,6 +26,7 @@ namespace WebApi.Controllers
             var dto = new MachineDto
             {
                 Name = model.Name,
+                PlanetId = model.PlanetId,
                 FriendIds = model.FriendIds,
                 EpisodeIds = model.EpisodeIds
             };
@@ -85,6 +86,7 @@ namespace WebApi.Controllers
             {
                 MachineId = model.MachineId.Value,
                 Name = model.Name,
+                PlanetId = model.PlanetId,
                 FriendIds = model.FriendIds,
                 EpisodeIds = model.EpisodeIds
             };

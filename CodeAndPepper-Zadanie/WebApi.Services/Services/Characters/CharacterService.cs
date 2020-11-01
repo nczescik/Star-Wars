@@ -14,15 +14,12 @@ namespace WebApi.Services.Services.Characters
     public class CharacterService : ICharacterService
     {
         private readonly IRepository<Character> _repository;
-        private readonly IRepository<Episode> _episodeRepository;
         private readonly StarWarsDbContext _dbContext;
         public CharacterService(
             IRepository<Character> repository,
-            IRepository<Episode> episodeRepository,
             StarWarsDbContext dbContext)
         {
             _repository = repository;
-            _episodeRepository = episodeRepository;
             _dbContext = dbContext;
         }
 
@@ -148,45 +145,10 @@ namespace WebApi.Services.Services.Characters
             _repository.Delete(character);
         }
 
-        public List<CharacterEpisode> AssignEpisodes(Character character, CharacterCollectionsDto dto)
-        {
-            var episodes = new List<CharacterEpisode>();
-            foreach (var episodeId in dto.EpisodeIds)
-            {
-                var episode = _episodeRepository.GetDbSet().Where(e => e.Id == episodeId).FirstOrDefault();
-                if (episode == null)
-                {
-                    throw new Exception("Episode doesn't exist");
-                }
-
-                episodes.Add(new CharacterEpisode
-                {
-                    Character = character,
-                    Episode = episode,
-                });
-            }
-
-            return episodes;
-        }
-
-        public List<CharacterEpisode> UpdateEpisodes(Character character, CharacterCollectionsDto dto)
-        {
-            //Removing old episodes first
-            var episodes = new List<CharacterEpisode>();
-
-            var oldEposodeIds = character.Episodes.Select(e => e.Episode.Id).ToList();
-            foreach (var id in oldEposodeIds)
-            {
-                character.Episodes.RemoveAll(e => e.Episode.Id == id);
-            }
-
-            return AssignEpisodes(character, dto);
-        }
-
-        public List<Friendship> AssignFriends(Character character, CharacterCollectionsDto dto)
+        public void AssignFriends(Character character, IList<long> ids)
         {
             var friends = new List<Friendship>();
-            foreach (var friendId in dto.FriendIds)
+            foreach (var friendId in ids)
             {
                 var friend = _repository
                     .GetDbSet()
@@ -225,12 +187,12 @@ namespace WebApi.Services.Services.Characters
 
             }
 
-            return friends;
+            character.Friends = friends;
         }
 
-        public List<Friendship> UpdateFriends(Character character, CharacterCollectionsDto dto)
+        public void UpdateFriends(Character character, IList<long> ids)
         {
-            if (dto.FriendIds.Contains(character.Id))
+            if (ids.Contains(character.Id))
             {
                 throw new Exception("Cannot add updating character to his own friends list");
             }
@@ -252,7 +214,7 @@ namespace WebApi.Services.Services.Characters
                 character.Friends.RemoveAll(e => e.Friend.Id == id);
             }
 
-            return AssignFriends(character, dto);
+            AssignFriends(character, ids);
         }
 
 

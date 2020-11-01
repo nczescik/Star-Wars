@@ -8,6 +8,8 @@ namespace WebApi.Models.Humans
         public string Firstname { get; set; }
         public string Lastname { get; set; }
 
+        public long PlanetId { get; set; }
+
         public IList<long> FriendIds { get; set; }
         public IList<long> EpisodeIds { get; set; }
     }
