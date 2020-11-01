@@ -207,16 +207,16 @@ namespace WebApi.Services.Services.Characters
                 });
 
                 //Adding character to his friend's Friends list
-                var machineFriend = _repository
+                var characterFriend = _repository
                     .GetDbSet()
                     .Include(c => c.Friends)
                     .ThenInclude(f => f.Friend)
                     .Where(e => e.Id == friendId)
                     .FirstOrDefault();
 
-                if (machineFriend != null)
+                if (characterFriend != null)
                 {
-                    machineFriend.Friends.Add(new Friendship
+                    characterFriend.Friends.Add(new Friendship
                     {
                         Character = friend,
                         Friend = character

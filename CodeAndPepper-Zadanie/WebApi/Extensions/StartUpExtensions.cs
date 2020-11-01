@@ -8,6 +8,7 @@ using WebApi.Services.Services.Characters;
 using WebApi.Services.Services.Episodes;
 using WebApi.Services.Services.Humans;
 using WebApi.Services.Services.Machines;
+using WebApi.Services.Services.Planets;
 using WebAPI.DAL.Interfaces;
 using WebAPI.DAL.Repositories;
 
@@ -23,6 +24,7 @@ namespace WebApi.Extensions
             services.AddScoped<IEpisodeService, EpisodeService>();
             services.AddScoped<IHumanService, HumanService>();
             services.AddScoped<IMachineService, MachineService>();
+            services.AddScoped<IPlanetService, PlanetService>();
             return services;
         }
         public static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)

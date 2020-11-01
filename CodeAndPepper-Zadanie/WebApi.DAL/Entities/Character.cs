@@ -38,10 +38,4 @@ namespace WebApi.DAL.Entities
         public long CharacterId { get; set; }
         public Character Character { get; set; }
     }
-
-    public enum CharacterType
-    {
-        Human = 1,
-        Machine = 2
-    }
 }

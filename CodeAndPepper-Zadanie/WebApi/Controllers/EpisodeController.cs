@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using WebApi.Helpers;
 using WebApi.Models.Episodes;
@@ -77,7 +78,7 @@ namespace WebApi.Controllers
         {
             if (!episodeModel.EpisodeId.HasValue || episodeModel.EpisodeId.Value == 0)
             {
-                return Ok(new { Message = "Incorrect value of episode Id" });
+                throw new Exception("Incorrect value of episode Id");
             }
 
             var episodeDto = new EpisodeDto

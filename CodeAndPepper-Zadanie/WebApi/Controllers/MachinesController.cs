@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.Helpers;
@@ -34,10 +35,10 @@ namespace WebApi.Controllers
             return Ok(new { machineId = id });
         }
 
-        [HttpGet("Getmachine/{userId}")]
-        public IActionResult Getmachine(long userId)
+        [HttpGet("GetMachine/{machineId}")]
+        public IActionResult GetMachine(long machineId)
         {
-            var dto = _machineService.GetMachine(userId);
+            var dto = _machineService.GetMachine(machineId);
             var model = new MachineViewModel
             {
                 Name = dto.Name,
@@ -45,11 +46,11 @@ namespace WebApi.Controllers
                 Friends = dto.Friends.Select(f => f.Name).ToList()
             };
 
-            return Ok(new { machine = model });
+            return Ok(new { Machine = model });
         }
 
-        [HttpGet("Getmachines")]
-        public IActionResult Getmachines()
+        [HttpGet("GetMachines")]
+        public IActionResult GetMachines()
         {
             var result = new List<MachineViewModel>();
             var machines = _machineService.GetMachinesList();
@@ -77,7 +78,7 @@ namespace WebApi.Controllers
         {
             if (!model.MachineId.HasValue || model.MachineId.Value == 0)
             {
-                return BadRequest(new { Message = "Incorrect value of machine Id" });
+                throw new Exception("Incorrect value of machine Id");
             }
 
             var dto = new MachineDto

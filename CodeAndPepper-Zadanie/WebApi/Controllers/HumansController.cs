@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.Helpers;
@@ -35,10 +36,10 @@ namespace WebApi.Controllers
             return Ok(new { HumanId = id });
         }
 
-        [HttpGet("GetHuman/{userId}")]
-        public IActionResult GetHuman(long userId)
+        [HttpGet("GetHuman/{humanId}")]
+        public IActionResult GetHuman(long humanId)
         {
-            var dto = _humanService.GetHuman(userId);
+            var dto = _humanService.GetHuman(humanId);
             var model = new HumanViewModel
             {
                 Firstname = dto.Firstname,
@@ -80,7 +81,7 @@ namespace WebApi.Controllers
         {
             if (!model.HumanId.HasValue || model.HumanId.Value == 0)
             {
-                return BadRequest(new { Message = "Incorrect value of human Id" });
+                throw new Exception("Incorrect value of human Id");
             }
 
             var dto = new HumanDto
